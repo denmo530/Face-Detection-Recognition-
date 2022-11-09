@@ -2,13 +2,18 @@ function [rgbImg] = eyemapC(input)
 
 img_ycbcr = rgb2ycbcr(input);
 
-[Cr, ~, Cb] = imsplit(img_ycbcr);
+%[Cr, ~, Cb] = imsplit(img_ycbcr);
+img = im2double(img_ycbcr);
+Y = img(:,:,1);
+Cb = img(:,:,2);
+Cr = img(:,:,3);
 
-% TODO If Gmax is too small, first scale up the green intensity
+% Chromincance eyemap
+eyeMapC = ((Cb.^2)+((1-Cr).^2)+(Cb./Cr))/3; 
 
-%Empirical cumulative distribution function? (Motsvarar tilde CR)
-%empCr = ecdf(Cr);
+%Histogram normalization
 
-rgbImg = (1/3)*((Cb.^2)+(Cr.^2)+(Cb./Cr)); 
+rgbImg = eyeMapC; 
+
 
 end
