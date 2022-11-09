@@ -12,8 +12,8 @@ Cr = img(:,:,3);
 eyeMapC = ((Cb.^2)+((1-Cr).^2)+(Cb./Cr))/3; 
 
 %Histogram normalization
-
-rgbImg = eyeMapC; 
+normImg = histeq(eyeMapC)
+rgbImg = normImg; 
 
 
 end
