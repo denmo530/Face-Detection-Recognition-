@@ -31,3 +31,5 @@ codegen/
 octave-workspace
 
 .DS_Store
+
+main.mlx
