@@ -22,18 +22,15 @@ angle = angle * 180 / pi;
 rotated = imrotate(input, angle);
 
 
-<<<<<<< Updated upstream
 imshow(input)
 hold on
 plot(176,279, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
 plot(283,275, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
 hold off
-=======
 %plot(176,279, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
 plot(283,275, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
 
 [~, mouthCoor] = mouthmap(input);
->>>>>>> Stashed changes
 
 
 plot(mouthCoor, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
