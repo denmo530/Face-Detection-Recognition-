@@ -28,7 +28,7 @@ while(bweuler(mask) ~= 1)
     mask = imerode(mask, SE2)
     disp("One iteration")
 end
-SE3 = strel('rectangle', [10, 40])
+SE3 = strel('rectangle', [20, 40])
 mask = imerode(mask, SE3)
 
 
