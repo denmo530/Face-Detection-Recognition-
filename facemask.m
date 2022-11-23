@@ -25,8 +25,11 @@ mask = imerode(mask, SE);
 while(bweuler(mask) ~= 1)
     mask = imerode(mask, SE2);
     mask = imdilate(mask, SE);
+    mask = imerode(mask, SE2)
     disp("One iteration")
 end
+SE3 = strel('rectangle', [10, 40])
+mask = imerode(mask, SE3)
 
 
 
@@ -36,5 +39,5 @@ im(:,:,3)=inputImg(:,:,3).*mask;
 
 
 
-outImg = uint8(im); 
+outImg = double(im); 
 end
