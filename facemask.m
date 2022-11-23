@@ -26,7 +26,11 @@ while(bweuler(mask) ~= 1)
     mask = imerode(mask, SE2);
     mask = imdilate(mask, SE);
     mask = imerode(mask, SE2);
+<<<<<<< Updated upstream
     %disp("One iteration")
+=======
+    disp("One iteration")
+>>>>>>> Stashed changes
 end
 SE3 = strel('rectangle', [20, 40]);
 mask = imerode(mask, SE3);
