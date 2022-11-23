@@ -16,10 +16,10 @@ input = grayworld(input);
 left_eye = [176 279];
 right_eye = [283 275];
 
-angle = atan2(right_eye(2) - left_eye(2), right_eye(1) - left_eye(1))
-angle = angle * 180 / pi
+angle = atan2(right_eye(2) - left_eye(2), right_eye(1) - left_eye(1));
+angle = angle * 180 / pi;
 
-rotated = imrotate(img, angle);
+rotated = imrotate(input, angle);
 
 
 %plot(176,279, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
