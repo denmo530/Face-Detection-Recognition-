@@ -22,7 +22,6 @@ angle = angle * 180 / pi;
 rotated = imrotate(input, angle);
 
 
-
 imshow(input)
 hold on
 plot(176,279, 'r+', 'MarkerSize', 15, 'LineWidth', 1);

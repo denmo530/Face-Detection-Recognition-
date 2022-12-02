@@ -92,11 +92,8 @@ else
 % %     imshow(combined);
 end
 
-% Decide left and right position of eye based on eyemap
-left = [0,0];
-right = [4,4];
-
 % result
 result = combined;
+left = geteyecoord(result);
 end
 
