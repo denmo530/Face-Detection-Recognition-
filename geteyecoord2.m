@@ -49,12 +49,12 @@ eyemapc = histeq(eyemapc);
 
 %compute luminance eye map, test different structure elements and sizes
 %disk with radius 10 works fairly well for db1
-se = strel('disk', LUMINANCE_EYE_MAP_DISK_SIZE);
+se = strel('disk', 10);
 eyemapl = imdilate(Y, se) ./ (imerode(Y, se) + 1);
 %Combine both eye maps and mask with facemask
 %using facemask here gives better result when normalizing the image
 %facemask removes a lot of false eye candidates
-eyemap = eyemapc .* eyemapl .* facemask;
+eyemap = eyemapc .* eyemapl .* localFacemask;
 %eyemap = eyemap .* facemask;
 eyemap = imdilate(eyemap, se);
 %normalize to bring the highest values to 1 -> easier to choose threshold 
@@ -70,10 +70,14 @@ D1 = bwdist(bw,'euclidean');
 weights = rgb2gray(repmat(rescale(D1), [1 1 3]));
 eyemap = eyemap .* (1-weights);
 
-eyemap = normalizeimg(eyemap);
+eyemap_max = max(max(eyemap));
+
+eyemap_min = min(min(eyemap));
+
+eyemap = (eyemap - eyemap_min) / (eyemap_max - eyemap_min);
 
 %create binary eyemap
-imbinary = eyemap > THRESHOLD_EYEMASK_BINARY; %0.75 works fairly well for db1
+imbinary = eyemap > 0.75; %0.75 works fairly well for db1
 
 se = strel('disk', 3);
 %close small gaps between objects, 
