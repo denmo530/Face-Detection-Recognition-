@@ -1,7 +1,7 @@
-function [leftcenter] = geteyecoord(result)
+function [leftcenter, secondlargestMouth] = geteyecoord(result)
 
 
-se1 = strel('disk', 8);
+se1 = strel('disk', 2);
 result = bwareaopen(result, 200);
 result = imdilate(result, se1);
 
@@ -16,14 +16,21 @@ for i = 1:length(stats)
     center(i,:) = stats(i).Centroid;
 end
 
-largestMouth = find(max(area));
+largesteye = find(max(area));
+secondlargestMouth = find(max(area(area<max(area))));
+
 
 newMouthMask = zeros(size(result));
-if largestMouth == 1
-    newMouthMask(L == largestMouth) = 1;
+if largesteye == 1
+    newMouthMask(L == largesteye) = 1;
 end
 
-leftcenter = center(largestMouth, :);
-%rightcenter = center(largestMouth[2], :);
+%newMouthMask2 = zeros(size(result));
+%if secondlargestMouth == 1
+%    newMouthMask2(L == secondlargestMouth) = 1;
+%end
+
+leftcenter = center(largesteye, :);
+%rightcenter = center(secondlargestMouth, :);
 
 end

@@ -6,7 +6,7 @@ inputImg = double(inputImg);
 img_hsv = rgb2hsv(inputImg);
 
 [H,S,V] = imsplit(img_hsv); 
-[w h] = size(inputImg(:,:,1)); 
+[w,h] = size(inputImg(:,:,1)); 
 for i=1:w
     for j=1:h
         if((H(i,j) < 30/360 || H(i,j) > 250/360) && S(i,j) < 0.52 && V(i,j) > 0.5)
@@ -26,16 +26,11 @@ while(bweuler(mask) ~= 1)
     mask = imerode(mask, SE2);
     mask = imdilate(mask, SE);
     mask = imerode(mask, SE2);
-<<<<<<< Updated upstream
+
     %disp("One iteration")
-=======
-    disp("One iteration")
->>>>>>> Stashed changes
 end
 SE3 = strel('rectangle', [20, 40]);
 mask = imerode(mask, SE3);
-
-
 
 im(:,:,1)=inputImg(:,:,1).*mask;   
 im(:,:,2)=inputImg(:,:,2).*mask; 
