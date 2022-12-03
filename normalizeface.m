@@ -1,48 +1,54 @@
-function [result] = normalizeface(input)
+function [] = normalizeface(input)
 %Take image of a face and normalize the image in terms of scale, rotation
 %and tone values. The image will have a set resolution which is important
 %for later steps.
 
 
-input = im2double(input); %Not sure if this is prefered
+%input = im2double(input); %Not sure if this is prefered
 
 %Automatic White Balancing, AWB
 input = grayworld(input);
 
-%Create eye map
 
-%Decide position of the eyes
-    %TODO implement method to find eye position based on eyemaps
-left_eye = [176 279];
-right_eye = [283 275];
+%Calls function for eyecoordinates
+eyeCoords=geteyecoord2(input);
 
-angle = atan2(right_eye(2) - left_eye(2), right_eye(1) - left_eye(1));
-angle = angle * 180 / pi;
+leftEye = eyeCoords(1, :);
+rightEye = eyeCoords(2, :);
 
-rotated = imrotate(input, angle);
-
-
-imshow(input)
+figure(1)
+imshow(input);
 hold on
-plot(176,279, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
-plot(283,275, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
+plot(leftEye,rightEye, 'rx','MarkerSize', 15, 'LineWidth', 1);
 hold off
+
+%angle = atan2(right_eye(2) - left_eye(2), right_eye(1) - left_eye(1));
+%angle = angle * 180 / pi;
+
+%rotated = imrotate(input, angle);
+
+%[~, mouthCoor] = mouthmap(input);
+
+%imshow(input)
+%hold on
+%plot(mouthCoor, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
+%plot(left_eye, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
+%plot(right_eye, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
+%hold off
 %plot(176,279, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
 
-[~, mouthCoor] = mouthmap(input);
 
-plot(mouthCoor, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
 
 %Rotate Image
     %TODO rotate image based on eye positions.
 
 %Scale image to another resolution
     %TODO scale might be changed when previous steps are fixed
-input = imresize(input, [400 300]);
+%input = imresize(input, [400 300]);
 
 %Change color space to grayscale
-input = rgb2gray(input);
+%input = rgb2gray(input);
 
-result = input;
+%result = input;
 
 end
