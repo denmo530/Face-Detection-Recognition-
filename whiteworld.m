@@ -6,9 +6,9 @@ function [rgbImg] = whiteworld(input)
 
 % TODO If Gmax is too small, first scale up the green intensity
 
-r_max = max(r); 
-g_max = max(g); 
-b_max = max(b); 
+r_max = max(max(r));
+g_max = max(max(g));
+b_max = max(max(b));
 
 
 alpha = g_max./r_max; 
