@@ -32,7 +32,8 @@ v = transpose(A)*A;
 u_i = A*v;
 
 for i = 1:1:M
-    imshow(reshape(u_i(:,i),400,[]))
+    normalize = mat2gray(u_i);
+    imshow(reshape(normalize(:,i),400,[]))
 end
 
 
