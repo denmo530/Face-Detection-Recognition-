@@ -1,4 +1,4 @@
-function [result] = eigenfaces(input)
+function [result meanface] = eigenfaces(input)
 %Create eigenface from a set of images that is normalized in rotation, scaling &
 %tonevalues. The image will be the same size as the other images.
 
@@ -36,7 +36,8 @@ for i = 1:1:M
     imshow(reshape(normalize(:,i),400,[]))
 end
 
-
+save('SavedData/u_i.mat', "u_i","u")
 result = u_i;
+meanface = u;
 
 end
