@@ -8,7 +8,7 @@ input = im2double(input); %Not sure if this is prefered
 
 %Automatic White Balancing, AWB
 input = whiteworld(input);
-input = imresize(input, 0.7);
+%input = imresize(input, 0.7);
 
 %Calls function for eyecoordinates
 eyeCoords=geteyecoord2(input);
@@ -24,17 +24,17 @@ expected_dimension = [2,2];
 
 leftEye = [185 271];
 rightEye = [307 278];
-disp("before")
+%disp("before")
 if numberOfEyes == 2
-    disp("1")
+    %disp("1")
     leftEye = eye1;
     rightEye = eye2;
 elseif size(eyeCoords) == expected_dimension
-    disp("2")
+    %disp("2")
     leftEye = eyeCoords(1, :);
     rightEye = eyeCoords(2, :);
 else
-    disp("3")
+    %disp("3")
     leftEye = [185 271];
     rightEye = [307 278];
 end
