@@ -7,42 +7,58 @@ function [result] = normalizeface(input)
 input = im2double(input); %Not sure if this is prefered
 
 %Automatic White Balancing, AWB
-input = grayworld(input);
+input = whiteworld(input);
+input = imresize(input, 0.7);
 
-%Create eye map
+%Calls function for eyecoordinates
+eyeCoords=geteyecoord2(input);
 
-%Decide position of the eyes
-    %TODO implement method to find eye position based on eyemaps
-left_eye = [176 279];
-right_eye = [283 275];
 
-angle = atan2(right_eye(2) - left_eye(2), right_eye(1) - left_eye(1));
+%if eyecoords doesnt exist, set a default value
+%eyeCoords
+expected_dimension = [2,2];
+
+    % Attempt to use function "3"
+[~, mouthCoords] = mouthmap(input);
+[eye1, eye2, numberOfEyes] = geteyecoord3(input, mouthCoords);
+
+leftEye = [185 271];
+rightEye = [307 278];
+disp("before")
+if numberOfEyes == 2
+    disp("1")
+    leftEye = eye1;
+    rightEye = eye2;
+elseif size(eyeCoords) == expected_dimension
+    disp("2")
+    leftEye = eyeCoords(1, :);
+    rightEye = eyeCoords(2, :);
+else
+    disp("3")
+    leftEye = [185 271];
+    rightEye = [307 278];
+end
+
+angle = atan2(rightEye(2) - leftEye(2), rightEye(1) - leftEye(1));
 angle = angle * 180 / pi;
 
-rotated = imrotate(input, angle);
+rotated = imrotate(input, angle, "bicubic", "loose");
+rotated = rotateAround(input, leftEye(2), leftEye(1), angle, 'bicubic');
+
+    %TODO update to new eye positions
+% eyeCoords=geteyecoord2(input);
+% leftEye = eyeCoords(1, :)
+% rightEye = eyeCoords(2, :)
+
+%Crop image
+hypotenuse = norm(leftEye-rightEye);
+center = leftEye + [hypotenuse/2, 0];
+Ltop = center + [hypotenuse*-0.75, -hypotenuse*0.5];
+Rbottom = center + [hypotenuse*0.75, hypotenuse*1.5];
+result = imresize(imcrop(rotated, [Ltop Rbottom-Ltop]), [400, 300]);
 
 
-imshow(input)
-hold on
-plot(176,279, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
-plot(283,275, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
-hold off
-%plot(176,279, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
-
-[~, mouthCoor] = mouthmap(input);
-
-plot(mouthCoor, 'r+', 'MarkerSize', 15, 'LineWidth', 1);
-
-%Rotate Image
-    %TODO rotate image based on eye positions.
-
-%Scale image to another resolution
-    %TODO scale might be changed when previous steps are fixed
-input = imresize(input, [400 300]);
-
-%Change color space to grayscale
-input = rgb2gray(input);
-
-result = input;
+result = im2gray(result);
+%result = input;
 
 end
