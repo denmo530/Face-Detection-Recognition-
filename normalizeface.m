@@ -8,6 +8,7 @@ input = im2double(input); %Not sure if this is prefered
 
 %Automatic White Balancing, AWB
 input = whiteworld(input);
+%input = grayworld(input);
 %input = imresize(input, 0.7);
 
 %Calls function for eyecoordinates
@@ -20,7 +21,7 @@ expected_dimension = [2,2];
 
     % Attempt to use function "3"
 [~, mouthCoords] = mouthmap(input);
-[eye1, eye2, numberOfEyes] = geteyecoord3(input, mouthCoords);
+[eye1, eye2, numberOfEyes] = geteyecoord4(input, mouthCoords);
 
 leftEye = [185 271];
 rightEye = [307 278];
@@ -60,5 +61,4 @@ result = imresize(imcrop(rotated, [Ltop Rbottom-Ltop]), [400, 300]);
 
 result = im2gray(result);
 %result = input;
-
 end

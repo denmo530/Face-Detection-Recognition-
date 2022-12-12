@@ -1,4 +1,4 @@
-function [eye1, eye2, numberOfEyes] = newEyeMap(Im, mouthPos)
+function [eye1, eye2, numberOfEyes] = geteyecoord3(Im, mouthPos)
    
     image = im2uint8(Im);
     
