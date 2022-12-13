@@ -1,137 +1,106 @@
-function [eye1, eye2, numberOfEyes] = geteyecoord4(Im, mouthPos)
-   
-    image = im2uint8(Im);
-    
-    % Convert to YCbCr color space and extract the components
-    ycbcrmap = rgb2ycbcr(image);
-    Y = ycbcrmap(:,:,1);
-    Cb = ycbcrmap(:,:,2);
-    Cr = ycbcrmap(:,:,3);
-    
-    % Calculate Cb^2
-    dCb = double(Cb);
-    CbPow = power(dCb,2);
-    
-    % Normalize Cb^2 to range between 0 and 255
-    normCbPow = CbPow./max(max(CbPow));
-    CbPow = normCbPow.*255;
+function [eye1, eye2] = geteyecoord4(Im)
 
-    % Calculate the negative of Cr
-    CrNeg = 255 - Cr;
-    
-    % Calculate CrNeg^2
-    dCrNeg = double(CrNeg);
-    CrNegPow = power(dCrNeg,2);
-    
-    % Normalize the negative of Cr between 0 and 255
-    normCrNegPow = CrNegPow./max(max(CrNegPow));
-    CrNegPow = normCrNegPow.*255;
-    % Calculate Cb/Cr
-    CbDivCr = double(Cb)./double(Cr);
+%Path
+addpath(genpath("facefunctions"));
+addpath(genpath("eigenfacefunctions"));
 
-    % Normalize Cb/Cr between 0 and 255
-    normCbDCr = CbDivCr./max(max(CbDivCr));
-    CbDCrFinal = normCbDCr.*255;
+%image format
+image = whiteworld(Im);
+image = im2uint8(image);
 
-    % Calculate eyeMapC
-    %eyeMapC = (1/3).*CbPow + (1/3).*CrNegPow + (1/3).*CbDCrFinal;
-    eyeMapC = (1/3).*(CbPow + CrNegPow + CbDCrFinal);
+%Chrominance Eye map
+eyeMapC = eyemapC(image);
 
-    % Histogram equalization to enhance contrast
-    eyeMapC = histeq(uint8(eyeMapC));
+%Luminance Eye map
+eyeMapL = eyemapL(image);
 
-    % Structuring element for dilation and erosion
-    SE = strel('disk',20,8);
+%Combined eye map
+    % Eye Map L + C
+    eyeMapFinal = imfuse(eyeMapL, eyeMapC, 'blend');
 
-    % Erosion of the luma component
-    erosion = imerode(Y,SE);
-    erosion = erosion + 1;
-    
-    % Dilation of the luma component
-    dilation = imdilate(Y,SE);
+    %Strucute element based on height
+    SE_height = round(length(image(:,1))/36);
+    SE = strel('disk',SE_height,8);
 
-    % Calculating EyeMapL
-    eyeMapL = double(dilation)./double(erosion);
-
-    % Normalizing EyeMapL between 0 and 255 
-    eyeMapLN = eyeMapL./max(max(eyeMapL));
-    eyeMapLFinal = uint8(eyeMapLN.*255);
-
-    % Fusing EyeMapC and EyeMapL to create the final eye map
-    eyeMapFinal = imfuse(eyeMapLFinal, eyeMapC, 'blend');
-%     figure
-%     imshow(eyeMapC)
-%     figure
-%     imshow(eyeMapLFinal)
-%     figure
-%     imshow(eyeMapFinal)
-    % Dilating the final eye map
-    SE2 = strel('disk',15,8);
-    eyeMapFinal = imdilate(eyeMapFinal, SE2);
+    %Final dilute
+    eyeMapFinal = imdilate(eyeMapFinal, SE);
 
     % Normalizing the final eye map between 0 and 255
-    eyeMapFinal = 255.*double(eyeMapFinal)./max(max(double(eyeMapFinal)));
-    [rows, cols] = size(eyeMapFinal);
+    eyeMapFinal = uint8(im2gray(eyeMapFinal));
 
-    % Thresholding the map to create map with intensities of only 0 and 255
-    for row = 1:rows
-        for col = 1:cols
-            if(eyeMapFinal(row,col) > 170)
-                eyeMapFinal(row,col) = 255;
-            else
-                eyeMapFinal(row,col) = 0;
-            end
-        end
-    end
-    % Makes the map binary
+    % Threshold to create binary image
+    eyeMapFinal = (eyeMapFinal >= 170);
     BW = logical(eyeMapFinal);
-    % Cropping eyemap 
-    %disp(mouthPos);
-    BW( round(mouthPos(2)) - round((1/7)*rows) : rows , : ) = 0; % bottom
-    BW( 1 : round((1/3.0)*rows), :) = 0;                  % top
-    BW( : , 1 : round(mouthPos(1)) - round((1/5)*cols) ) = 0;    % left
-    BW( : , round(mouthPos(1)) + round((1/4)*cols) : cols ) = 0; % right
-    %figure
-    %imshow(BW)
-    %title('cropped eye map')
+
+
+
+%Remove sections of eye map based on mouth position
+[~, mouthPos] = mouthmap(image);
+mouthX = round(mouthPos(1));
+mouthY = round(mouthPos(2));
+
+[rows, cols] = size(image(:,:,1));
+
+%Only remove as long as 2 regions remain
+    %Remove bottom
+    BW_new = BW;
+    BW_new( mouthY - round((1/8)*rows) : rows , : ) = 0; % bottom
+    if size(regionprops(BW_new, "area"),1) >= 2
+        BW = BW_new;
+    end
+        
+    %Remove top
+    BW_new = BW;
+    BW_new( 1 : round((1/3.0)*rows), :) = 0;                  % top
+    if size(regionprops(BW_new, "area"),1) >= 2
+        BW = BW_new;
+    end
+        
+    %Remove left
+    BW_new = BW;
+    BW_new( : , 1 : mouthX - round((1/5)*cols) ) = 0;    % left
+    if size(regionprops(BW_new, "area"),1) >= 2
+        BW = BW_new;
+    end
+
+    %Remove bottom
+    BW_new = BW;
+    BW_new( : , mouthX + round((1/4)*cols) : cols ) = 0; % right
+    if size(regionprops(BW_new, "area"),1) >= 2
+        BW = BW_new;
+    end
+
+
+
+%Result
+    %IF AT LEAST 2 ISLANDS NOT FOUND, return a default set of eyes
+    if size(regionprops(BW_new, "area"),1) <= 1
+        default_left_eye = [round(cols/3), round(rows*(0.45))];
+        default_right_eye = [round(cols - cols/3), round(rows*(0.45))];
     
+        eye1 = default_left_eye;
+        eye2 = default_right_eye;
+        return
+    end
+
+    %Set eyes
     eyemap = BW;
-    
-    mm = bwareafilt(eyemap,2); % Selecting 2 largest object of image
-    % Calculates the center of each object
+    mm = bwareafilt(eyemap,2); % Get 2 largest islands
+
+    % Get centers of those islands
     labeledImage = logical(mm);
     measurements = regionprops(labeledImage, mm, 'Centroid');
-    [a, ~] = size(measurements);
     
-    % If two centriods are found, they become the eye positions 
-    if(a == 2)
-        centroid1 = measurements(1).Centroid;
-        centroid2 = measurements(2).Centroid;
+    % Set eye positions
+    centroid1 = measurements(1).Centroid;
+    centroid2 = measurements(2).Centroid;
 
-        centroid1 = round(centroid1);
-        centroid2 = round(centroid2);
+    centroid1 = round(centroid1);
+    centroid2 = round(centroid2);
 
-        mm(centroid1(2),centroid1(1),:) = 0;
-        mm(centroid2(2),centroid2(1),:) = 0;
+    mm(centroid1(2),centroid1(1),:) = 0;
+    mm(centroid2(2),centroid2(1),:) = 0;
 
-        eye1 = centroid1;
-        eye2 = centroid2;
-        numberOfEyes = 2;
-        return
-    else 
-        if(a == 1) 
-            eye1 = [];              % If there is only one centroid found, eye positions are not set 
-            eye2 = [];              % and number of eyes are set to one.
-            numberOfEyes = 1;
-            return
-        else
-            eye1 = [];              % If there is less than one centroid, eye positions are are also not set
-            eye2 = [];              % and number of eyes are set to zero
-            numberOfEyes = 0;        
-            return
-        end
-
-    end
-
-
+    eye1 = centroid1;
+    eye2 = centroid2;
 end

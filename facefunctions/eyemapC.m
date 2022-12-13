@@ -1,5 +1,6 @@
 function [rgbImg] = eyemapC(input)
 
+input = im2uint8(input);
 img_ycbcr = rgb2ycbcr(input);
 
 %[Cr, ~, Cb] = imsplit(img_ycbcr);

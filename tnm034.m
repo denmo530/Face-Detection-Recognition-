@@ -40,7 +40,7 @@ addpath(genpath("eigenfacefunctions"));
     no_match_threshold = 5.0e+06;
     
     if(shortest > no_match_threshold)
-        id = -1;
+        id = 0;
     else
         id = find(distances == min(min(distances)));
     end

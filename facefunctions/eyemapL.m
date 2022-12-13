@@ -1,10 +1,19 @@
-function [eyemaplum] = eyemapL(input)
+function [eyemapL] = eyemapL(input)
 
-[Y, ~, ~] = imsplit(input);
+%image format
+input = im2uint8(input);
 
-se1 = strel('disk', 16,8);
+%Luma component
+img_ycbcr = rgb2ycbcr(input);
+Y = img_ycbcr(:,:,1);
 
-eyemaplum=imdilate(Y,se1)./(1+imerode(Y,se1));
+%Structure element size based on height
+SE_height = round(length(input(:,1))/24);
+SE = strel('disk',SE_height,8);
 
-eyemaplum = im2double(histeq(eyemaplum));
+eyemapL=double(imdilate(Y,SE))./double(imerode(Y,SE) + 1);
+
+% Normalizing EyeMapL between 0 and 255 
+eyemapL = uint8(255 * mat2gray(eyemapL));
+
 end
